@@ -31,7 +31,7 @@ impl WebsiteHandler {
 }
 
 impl Handler for WebsiteHandler {
-    fn handle_request(&mut self, request: &Request) -> Response {
+    fn handle_request(&self, request: &Request) -> Response {
         match (request.method(), request.path()) {
             (Method::GET, "/") => Response::new(
                 StatusCode::Ok,

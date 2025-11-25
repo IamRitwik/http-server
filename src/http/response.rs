@@ -1,8 +1,5 @@
 use crate::http::StatusCode;
-use std::{
-    io::{Result as IoResult, Write},
-    net::TcpStream,
-};
+use tokio::io::{AsyncWriteExt, Result as IoResult};
 
 pub struct Response {
     status_code: StatusCode,
@@ -23,7 +20,7 @@ impl Response {
         }
     }
 
-    pub fn send(&self, stream: &mut TcpStream) -> IoResult<()> {
+    pub async fn send<W: AsyncWriteExt + Unpin>(&self, stream: &mut W) -> IoResult<()> {
         let body = match &self.body {
             Some(body) => body,
             None => "",
@@ -32,14 +29,14 @@ impl Response {
             Some(ct) => ct,
             None => "text/html",
         };
-        write!(
-            stream,
+        let response = format!(
             "HTTP/1.1 {} {}\r\nContent-Type: {}\r\nContent-Length: {}\r\n\r\n{}",
             self.status_code,
             self.status_code.reason_phrase(),
             content_type,
             body.len(),
             body
-        )
+        );
+        stream.write_all(response.as_bytes()).await
     }
 }

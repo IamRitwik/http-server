@@ -7,17 +7,21 @@ use crate::website_handler::WebsiteHandler;
 
 mod http;
 mod server;
-mod thread_pool;
 mod website_handler;
 
-fn main() {
+fn get_public_path() -> String {
     let default_path = format!("{}/public", env!("CARGO_MANIFEST_DIR"));
-    let public_path = env::var("PUBLIC_PATH").unwrap_or(default_path);
+    env::var("PUBLIC_PATH").unwrap_or(default_path)
+}
+
+#[tokio::main]
+async fn main() {
+    let public_path = get_public_path();
     println!("Public path: {}", public_path);
-    // server here is struct
-    let server: Server = Server::new("127.0.0.1:8080");
-    let port: &str = &server.addr()[10..];
-    let ip: &str = &server.addr()[..9];
+    let ip = "127.0.0.1";
+    let port = "8080";
     println!("IP address: {} and Port: {}", ip, port);
-    server.run(WebsiteHandler::new(public_path));
+    let addr = format!("{}:{}", ip, port);
+    let server = Server::new(&addr);
+    server.run(WebsiteHandler::new(public_path)).await;
 }
