@@ -21,3 +21,14 @@ impl FromStr for Method {
         }
     }
 }
+
+impl std::fmt::Display for Method {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            Method::GET => write!(f, "GET"),
+            Method::DELETE => write!(f, "DELETE"),
+            Method::POST => write!(f, "POST"),
+            Method::PUT => write!(f, "PUT"),
+        }
+    }
+}

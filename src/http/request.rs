@@ -65,6 +65,22 @@ fn get_next_word(request: &str) -> Option<(&str, &str)> {
     None
 }
 
+/// Find the end of an HTTP request in a byte buffer.
+/// Returns the index immediately after "\r\n\r\n" if found, None otherwise.
+pub fn find_request_boundary(buffer: &[u8]) -> Option<usize> {
+    // Look for the HTTP header/body separator: \r\n\r\n
+    for i in 0..buffer.len().saturating_sub(3) {
+        if buffer[i] == b'\r'
+            && buffer[i + 1] == b'\n'
+            && buffer[i + 2] == b'\r'
+            && buffer[i + 3] == b'\n'
+        {
+            return Some(i + 4);
+        }
+    }
+    None
+}
+
 pub enum ParseError {
     InvalidRequest,
     InvalidEncoding,
